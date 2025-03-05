@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCode WARI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1436a5, #1e3a8a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .form_main {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form_main::before {
+            content: "";
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            background: #1436a5;
+            transform: rotate(45deg);
+            left: -180px;
+            bottom: 30px;
+            border-radius: 30px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .heading {
+            font-size: 2em;
+            color: #2fc411;
+            font-weight: 700;
+            margin-bottom: 20px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .heading1 {
+            font-size: 1.5em;
+            color: #f8f8f8;
+            font-weight: 700;
+            margin-bottom: 10px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .inputContainer {
+            width: 100%;
+            position: relative;
+            margin: 15px 0;
+            z-index: 2;
+        }
+
+        .inputIcon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #278a1e;
+            z-index: 3;
+        }
+
+        .inputField {
+            width: 100%;
+            height: 40px;
+            padding-left: 35px;
+            border: 2px solid #6b7280;
+            border-radius: 10px;
+            font-size: 1.1em;
+            color: #f26108;
+            background: transparent;
+            transition: border-color 0.3s;
+        }
+
+        .inputField:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .inputField::placeholder {
+            color: #6b7280;
+        }
+
+        .btn-primary {
+            width: 100%;
+            height: 50px;
+            background: #1e8a20;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 20px 0;
+            z-index: 2;
+            position: relative;
+        }
+
+        .menubtn-primary {
+            width: 100%;
+            height: 70px;
+            background: #1e8a20;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 20px 0;
+            z-index: 2;
+            position: relative;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .user-info-balance {
+            background:  #f26108;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: white;
+            align-items: flex-start;
+            font-weight: 500;
+        }
+
+        #balanceAmount {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #toggleBalanceIcon {
+            cursor: pointer;
+            color: #28a745;
+            transition: color 0.3s;
+        }
+
+        #toggleBalanceIcon:hover {
+            color: #218838;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: fadeIn 0.3s;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .modal-icon.success {
+            color: #28a745;
+        }
+
+        .modal-icon.error {
+            color: #dc3545;
+        }
+
+        .modal-button {
+            margin-top: 20px;
+            padding: 10px 50px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal-button:hover {
+            background: #218838;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #f1f1f1;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .operation-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .operation-buttons button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1em;
+        }
+
+        /* Loader avec icône PNG */
+        .loader-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Animation de la balle tournante */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="form_main">
+        <!-- Section de connexion -->
+        <div id="login-section">
+            <h2 class="heading">Connexion</h2>
+            <form id="login-form">
+                <div class="inputContainer" id="phone-container">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="number" id="phone" class="inputField" placeholder="Téléphone" required>
+                </div>
+                <div class="inputContainer">
+                    <i class="inputIcon fas fa-lock"></i>
+                    <input type="password" id="password" class="inputField" placeholder="Code Secret" required>
+                </div>
+                <button type="submit" class="btn-primary">Se connecter</button>
+            </form>
+            <p id="login-message"></p>
+            <p>Pas de compte ? <a href="#" onclick="showSignupForm()">Créer un Compte WariPay</a></p>
+        </div>
+        <!-- Section d'inscription -->
+        <div id="register-section" class="hidden">
+            <h2 class="heading">Inscription</h2>
+            <form id="register-form">
+                <div class="inputContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="number" id="register-phone" class="inputField" placeholder="Téléphone" required>
+                </div>
+                <div class="inputContainer">
+                    <i class="inputIcon fas fa-user"></i>
+                    <input type="text" id="register-name" class="inputField" placeholder="Nom" required>
+                </div>
+                <div class="inputContainer">
+                    <i class="inputIcon fas fa-lock"></i>
+                    <input type="password" id="register-password" class="inputField" placeholder="Code Secret" required>
+                </div>
+                <button type="submit" class="btn-primary">Créer un Compte WariPay</button>
+            </form>
+            <p id="register-message"></p>
+            <p>Vous avez déjà un compte ? <a href="#" onclick="showLoginForm()">Se connecter</a></p>
+        </div>
+
+        <!-- Section Gestion de Compte -->
+        <div id="account-section" class="hidden">
+
+            <!-- Carte combinée pour les informations de l'utilisateur et le solde -->
+            <div class="user-info-balance">
+                <p class="heading1">Mon Compte</p>
+                <div class="user-info">
+                    <p><strong>Nom :</strong> <span id="account-name"></span></p>
+                    <p><strong>Téléphone :</strong> <span id="account-phone"></span></p>
+                </div>
+                <div class="balance">
+                    <h3>Solde</h3>
+                    <p id="balanceAmount">
+                        <span id="balanceText">******* F</span>
+                        <i class="fas fa-eye" id="toggleBalanceIcon" onclick="toggleBalanceVisibility()"></i>
+                    </p>
+                </div>
+            </div>
+
+            <h3>Effectuer une opération</h3>
+            <div id="operation-buttons" class="operation-buttons">
+                <button class="menubtn-primary" onclick="window.location.href='depot.html'">
+                    <i class="fas fa-plus-circle"></i> Dépôt
+                </button>
+                <button class="menubtn-primary" onclick="openOperationModal('transfert')"><i class="fas fa-exchange-alt"></i> Transfert</button>
+                <button class="menubtn-primary" onclick="openOperationModal('retrait')"><i class="fas fa-minus-circle"></i> Retrait</button>
+                <button class="menubtn-primary" onclick="openOperationModal('unite')"><i class="fas fa-mobile-alt"></i> Unité</button>
+                <button class="menubtn-primary" onclick="openOperationModal('internet')"><i class="fas fa-sim-card"></i> Internet</button>
+                <button class="menubtn-primary" onclick="openOperationModal('transfert_international')"><i class="fas fa-globe-americas"></i> Transfert International</button>
+                <button class="menubtn-primary" onclick="openOperationModal('tv')"><i class="fas fa-tv"></i> TV</button>
+                <button class="menubtn-primary" onclick="openOperationModal('facture')">
+                    <i class="fas fa-file-invoice"></i> Facture
+                </button>
+                <button class="menubtn-primary" onclick="openOperationModal('depot_1xbet')">
+                    <i class="fas fa-ticket-alt"></i> Dépôt 1XBET
+                </button>
+            </div>
+            <button id="show-history-btn" class="btn-primary">Afficher l'historique</button>
+            <button class="btn-primary" onclick="logoutUser()">Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- Modaux -->
+    <div id="messageModal" class="modal" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-message">
+        <div class="modal-content">
+            <span class="close" aria-label="Fermer">&times;</span>
+            <div class="modal-icon success" aria-hidden="true">✔</div>
+            <p id="modal-message"></p>
+            <button class="modal-button" onclick="closeModal('messageModal')">Fermer</button>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal" role="dialog" aria-labelledby="history-title" aria-describedby="history-list">
+        <div class="modal-content">
+            <span class="close" aria-label="Fermer">&times;</span>
+            <h2 id="history-title">Historique des Transactions</h2>
+            <ul id="modal-transaction-history" aria-describedby="history-list"></ul>
+            <button class="modal-button" onclick="closeModal('historyModal')">Fermer</button>
+        </div>
+    </div>
+
+    <!-- Modal pour les opérations -->
+    <div id="operationModal" class="modal" role="dialog" aria-labelledby="operationModalTitle">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('operationModal')" aria-label="Fermer">&times;</span>
+            <h2 id="operationModalTitle"></h2>
+            <form id="operationForm">
+                <!-- Champs pour le retrait -->
+                <div class="inputContainer" id="retraitAmountContainer">
+                    <i class="inputIcon fas fa-money-bill"></i>
+                    <input type="number" id="retraitAmount" class="inputField" placeholder="Montant du retrait">
+                </div>
+                <div class="inputContainer" id="retraitPhoneContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="tel" id="retraitPhone" class="inputField" placeholder="Numéro destinataire">
+                </div>
+                <!-- Champs pour l'unité -->
+                <div class="inputContainer" id="uniteAmountContainer">
+                    <i class="inputIcon fas fa-mobile-alt"></i>
+                    <input type="number" id="uniteAmount" class="inputField" placeholder="Montant de l'unité">
+                </div>
+                <div class="inputContainer" id="unitePhoneContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="tel" id="unitePhone" class="inputField" placeholder="Numéro destinataire">
+                </div>
+                <!-- Champs pour l'internet -->
+                <div class="inputContainer" id="internetOperatorContainer">
+                    <i class="inputIcon fas fa-sim-card"></i>
+                    <select id="internetOperator" class="inputField" onchange="updateInternetPlans()">
+                        <option value="orange">Orange</option>
+                        <option value="moov">Moov</option>
+                        <option value="telecel">Telecel</option>
+                    </select>
+                </div>
+                <div class="inputContainer" id="internetPlanContainer">
+                    <i class="inputIcon fas fa-wifi"></i>
+                    <select id="internetPlan" class="inputField">
+                        <!-- Options will be dynamically populated based on the operator -->
+                    </select>
+                </div>
+                <div class="inputContainer" id="internetPhoneContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="tel" id="internetPhone" class="inputField" placeholder="Numéro destinataire">
+                </div>
+                <!-- Champs pour le transfert -->
+                <div class="inputContainer" id="recipientPhoneContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="tel" id="recipientPhone" class="inputField" placeholder="Téléphone du destinataire">
+                </div>
+                <div class="inputContainer" id="transfertAmountContainer">
+                    <i class="inputIcon fas fa-money-bill"></i>
+                    <input type="number" id="transfertAmount" class="inputField" placeholder="Montant du transfert">
+                </div>
+                <!-- Champs pour le transfert international -->
+                <div class="inputContainer" id="transfertInternationalAmountContainer">
+                    <i class="inputIcon fas fa-globe-americas"></i>
+                    <input type="number" id="transfertInternationalAmount" class="inputField" placeholder="Montant du transfert international">
+                </div>
+                <div class="inputContainer" id="transfertInternationalPhoneContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="tel" id="transfertInternationalPhone" class="inputField" placeholder="Téléphone du destinataire">
+                </div>
+                <div class="inputContainer" id="transfertInternationalCountryContainer">
+                    <i class="inputIcon fas fa-globe"></i>
+                    <input type="text" id="transfertInternationalCountry" class="inputField" placeholder="Pays">
+                </div>
+                <!-- Champs pour la TV -->
+                <div class="inputContainer" id="tvTypeContainer">
+                    <i class="inputIcon fas fa-tv"></i>
+                    <select id="tvType" class="inputField" onchange="updateTvFields()">
+                        <option value="abonnement">Abonnement</option>
+                        <option value="reabonnement">Réabonnement</option>
+                    </select>
+                </div>
+                <div class="inputContainer" id="tvAbonnementContainer">
+                    <i class="inputIcon fas fa-tv"></i>
+                    <input type="text" id="tvAbonnement" class="inputField" placeholder="Numéro d'abonnement">
+                </div>
+                <div class="inputContainer" id="tvReabonnementContainer">
+                    <i class="inputIcon fas fa-tv"></i>
+                    <input type="text" id="tvReabonnement" class="inputField" placeholder="Numéro de réabonnement">
+                </div>
+                <div class="inputContainer" id="tvAmountContainer">
+                    <i class="inputIcon fas fa-money-bill"></i>
+                    <input type="number" id="tvAmount" class="inputField" placeholder="Montant de la TV">
+                </div>
+                <!-- Champs pour la facture -->
+                <div class="inputContainer" id="factureServiceContainer">
+                    <i class="inputIcon fas fa-file-invoice"></i>
+                    <select id="factureService" class="inputField" onchange="updateFactureFields()">
+                        <option value="onea">ONEA</option>
+                        <option value="sonabel">SONABEL</option>
+                    </select>
+                </div>
+                <div class="inputContainer" id="factureOneaContainer">
+                    <i class="inputIcon fas fa-file-invoice"></i>
+                    <input type="text" id="factureOnea" class="inputField" placeholder="Numéro de ligne">
+                </div>
+                <div class="inputContainer" id="factureSonabelContainer">
+                    <i class="inputIcon fas fa-file-invoice"></i>
+                    <input type="text" id="factureSonabel" class="inputField" placeholder="Numéro du compteur">
+                </div>
+                <div class="inputContainer" id="factureAmountContainer">
+                    <i class="inputIcon fas fa-money-bill"></i>
+                    <input type="number" id="factureAmount" class="inputField" placeholder="Montant de la facture">
+                </div>
+                <!-- Champs pour le dépôt 1XBET -->
+                <div class="inputContainer" id="depot1xBetAmountContainer">
+                    <i class="inputIcon fas fa-ticket-alt"></i>
+                    <input type="number" id="depot1xBetAmount" class="inputField" placeholder="Montant du dépôt 1XBET">
+                </div>
+                <button type="submit" class="btn-primary">Confirmer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmationModal" class="modal" role="dialog" aria-labelledby="confirmationTitle">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confirmationModal')" aria-label="Fermer">&times;</span>
+            <h2 id="confirmationTitle">Confirmation</h2>
+            <p id="confirmationMessage"></p>
+            <div class="inputContainer">
+                <i class="inputIcon fas fa-lock"></i>
+                <input type="password" id="confirmationPin" class="inputField" placeholder="Code Secret" required>
+            </div>
+            <button type="button" class="btn-primary" onclick="confirmOperation()">Valider</button>
+        </div>
+    </div>
+
+   <!-- Loader avec animation -->
+   <div id="loaderModal" class="loader-modal">
+    <div class="loader"></div>
+</div>
+</div>
+    <script>
+     // Simule un chargement et masque le loader après 3 secondes
+     setTimeout(() => {
+            document.getElementById("loaderModal").style.display = "none";
+        }, 3000);
+
+    let currentOperation = null;
+    let currentUser = null;
+
+    // Exemple de forfaits pour chaque opérateur
+    const internetPlans = {
+        orange: [
+            { value: "1GB", text: "1 Go - 1050 F" },
+            { value: "2GB", text: "2 Go - 2000 F" },
+            { value: "5GB", text: "5 Go - 4500 F" },
+            { value: "10GB", text: "10 Go - 8000 F" },
+            { value: "20GB", text: "20 Go - 15000 F" }
+        ],
+        moov: [
+            { value: "500MB", text: "500 Mo - 500 F" },
+            { value: "1GB", text: "1 Go - 1000 F" },
+            { value: "3GB", text: "3 Go - 3000 F" },
+            { value: "5GB", text: "5 Go - 5000 F" },
+            { value: "10GB", text: "10 Go - 9000 F" }
+        ],
+        telecel: [
+            { value: "1GB", text: "1 Go - 1100 F" },
+            { value: "2GB", text: "2 Go - 2100 F" },
+            { value: "5GB", text: "5 Go - 4600 F" },
+            { value: "10GB", text: "10 Go - 8500 F" },
+            { value: "20GB", text: "20 Go - 16000 F" }
+        ]
+    };
+
+    // Fonction pour mettre à jour les forfaits internet en fonction de l'opérateur sélectionné
+    function updateInternetPlans() {
+        const operator = document.getElementById('internetOperator').value;
+        const planSelect = document.getElementById('internetPlan');
+        planSelect.innerHTML = ''; // Clear existing options
+
+        internetPlans[operator].forEach(plan => {
+            const option = document.createElement('option');
+            option.value = plan.value;
+            option.textContent = plan.text;
+            planSelect.appendChild(option);
+        });
+    }
+
+    // Fonction pour mettre à jour les champs de la TV en fonction du type sélectionné
+    function updateTvFields() {
+        const tvType = document.getElementById('tvType').value;
+        document.getElementById('tvAbonnementContainer').style.display = (tvType === 'abonnement') ? 'block' : 'none';
+        document.getElementById('tvReabonnementContainer').style.display = (tvType === 'reabonnement') ? 'block' : 'none';
+    }
+
+    // Fonction pour mettre à jour les champs de la facture en fonction du service sélectionné
+    function updateFactureFields() {
+        const factureService = document.getElementById('factureService').value;
+        document.getElementById('factureOneaContainer').style.display = (factureService === 'onea') ? 'block' : 'none';
+        document.getElementById('factureSonabelContainer').style.display = (factureService === 'sonabel') ? 'block' : 'none';
+    }
+
+    // Fonction pour ouvrir le modal d'opération
+    function openOperationModal(operationType) {
+        currentOperation = operationType;
+        document.getElementById('operationModalTitle').textContent = `Opération : ${operationType}`;
+
+        // Afficher les champs spécifiques à chaque opération
+        document.getElementById('recipientPhoneContainer').style.display = (operationType === 'transfert' || operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('transfertAmountContainer').style.display = (operationType === 'transfert' || operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('retraitAmountContainer').style.display = (operationType === 'retrait') ? 'block' : 'none';
+        document.getElementById('retraitPhoneContainer').style.display = (operationType === 'retrait') ? 'block' : 'none';
+        document.getElementById('uniteAmountContainer').style.display = (operationType === 'unite') ? 'block' : 'none';
+        document.getElementById('unitePhoneContainer').style.display = (operationType === 'unite') ? 'block' : 'none';
+        document.getElementById('internetOperatorContainer').style.display = (operationType === 'internet') ? 'block' : 'none';
+        document.getElementById('internetPlanContainer').style.display = (operationType === 'internet') ? 'block' : 'none';
+        document.getElementById('internetPhoneContainer').style.display = (operationType === 'internet') ? 'block' : 'none';
+        document.getElementById('transfertInternationalAmountContainer').style.display = (operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('transfertInternationalPhoneContainer').style.display = (operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('transfertInternationalCountryContainer').style.display = (operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('tvTypeContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('tvAbonnementContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('tvReabonnementContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('tvAmountContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('factureServiceContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
+        document.getElementById('factureOneaContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
+        document.getElementById('factureSonabelContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
+        document.getElementById('factureAmountContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
+        document.getElementById('depot1xBetAmountContainer').style.display = (operationType === 'depot_1xbet') ? 'block' : 'none';
+
+        // Mettre à jour les forfaits internet si l'opération est "internet"
+        if (operationType === 'internet') {
+            updateInternetPlans();
+        }
+
+        // Mettre à jour les champs de la TV si l'opération est "tv"
+        if (operationType === 'tv') {
+            updateTvFields();
+        }
+
+        // Mettre à jour les champs de la facture si l'opération est "facture"
+        if (operationType === 'facture') {
+            updateFactureFields();
+        }
+
+        openModal('operationModal');
+    }
+
+    // Fonction pour exécuter l'opération
+function executeOperation() {
+    let amount = 0;
+    let recipientPhone = "";
+    let internetOperator = null;
+    let internetPlan = null;
+    let tvType = null;
+    let factureService = null;
+    let destinataire = null;
+    let pays = null;
+    let numero = null;
+    let service = null;
+
+    switch (currentOperation) {
+        case 'retrait':
+            amount = document.getElementById('retraitAmount').value;
+            break;
+        case 'unite':
+            amount = document.getElementById('uniteAmount').value;
+            break;
+        case 'internet':
+            internetOperator = document.getElementById('internetOperator').value;
+            internetPlan = document.getElementById('internetPlan').value;
+            // Set amount based on the selected plan
+            const selectedPlan = internetPlans[internetOperator].find(plan => plan.value === internetPlan);
+            if (selectedPlan) {
+                amount = parseFloat(selectedPlan.text.split(' - ')[1].replace(' F', ''));
+            }
+            break;
+        case 'transfert':
+            amount = document.getElementById('transfertAmount').value;
+            recipientPhone = document.getElementById('recipientPhone').value;
+            // Vérifier si l'utilisateur essaie de transférer vers son propre numéro
+            if (recipientPhone === currentUser.phone) {
+                showModalMessage('Vous ne pouvez pas transférer de l\'argent vers votre propre numéro.', '😥');
+                return;
+            }
+            break;
+        case 'transfert_international':
+            amount = document.getElementById('transfertInternationalAmount').value;
+            recipientPhone = document.getElementById('transfertInternationalPhone').value;
+            pays = document.getElementById('transfertInternationalCountry').value;
+            break;
+        case 'tv':
+            amount = document.getElementById('tvAmount').value;
+            tvType = document.getElementById('tvType').value;
+            numero = (tvType === 'abonnement') ? document.getElementById('tvAbonnement').value : document.getElementById('tvReabonnement').value;
+            break;
+        case 'facture':
+            amount = document.getElementById('factureAmount').value;
+            factureService = document.getElementById('factureService').value;
+            numero = (factureService === 'onea') ? document.getElementById('factureOnea').value : document.getElementById('factureSonabel').value;
+            break;
+        case 'depot_1xbet':
+            amount = document.getElementById('depot1xBetAmount').value;
+            break;
+    }
+
+    const operationData = {
+        action: currentOperation,
+        phone: currentUser.phone,
+        amount: parseFloat(amount),
+        recipientPhone: recipientPhone,
+        internetOperator: internetOperator || null,
+        internetPlan: internetPlan || null,
+        tvType: tvType || null,
+        factureService: factureService || null,
+        destinataire: destinataire || null,
+        pays: pays || null,
+        numero: numero || null,
+        service: service || null
+    };
+
+    showLoader();
+    fetch('https://script.google.com/macros/s/AKfycbzZOrcP9z8VwGpfZ-pCNbakoVhBzrUquIB0tgfifibEgQ-VCFYhYrUsYVPlnVOWUAZCkw/exec', {
+        method: 'POST',
+        body: JSON.stringify(operationData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoader();
+        if (data.status === 'success') {
+            // Mettre à jour le solde de l'utilisateur
+            currentUser.balance -= amount;
+            document.getElementById('balanceText').textContent = currentUser.balance.toFixed(2) + ' XOF';
+
+            // Mettre à jour la feuille de calcul
+            updateGoogleSheet(currentUser.phone, currentOperation, amount, recipientPhone);
+
+            loadHistory(currentUser.phone);
+            showModalMessage('Opération réussie!', '😎');
+            closeModal('operationModal');
+        } else {
+            showModalMessage(data.message, '😥');
+        }
+    });
+}
+
+// Fonction pour mettre à jour la feuille de calcul Google Sheets
+function updateGoogleSheet(phone, operationType, amount, recipientPhone) {
+    const adminPhone = "6722286356827211";
+    const sheetData = {
+        action: 'updateSheet',
+        phone: phone,
+        operationType: operationType,
+        amount: amount,
+        recipientPhone: (operationType === 'transfert') ? recipientPhone : adminPhone
+    };
+
+    fetch('https://script.google.com/macros/s/AKfycbzZOrcP9z8VwGpfZ-pCNbakoVhBzrUquIB0tgfifibEgQ-VCFYhYrUsYVPlnVOWUAZCkw/exec', {
+        method: 'POST',
+        body: JSON.stringify(sheetData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status !== 'success') {
+            console.error('Erreur lors de la mise à jour de la feuille de calcul:', data.message);
+        }
+    });
+}
+
+
+    // Fonction pour fermer un modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Fonction pour ouvrir un modal
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    // Fonction pour afficher le loader
+    function showLoader() {
+        document.getElementById('loaderModal').style.display = 'flex';
+    }
+
+    // Fonction pour masquer le loader
+    function hideLoader() {
+        document.getElementById('loaderModal').style.display = 'none';
+    }
+
+    // Fonction pour afficher un message modal
+    function showModalMessage(message, icon = '🔔') {
+        document.getElementById('modal-message').innerHTML = `<div class="icon">${icon}</div>${message}`;
+        openModal('messageModal');
+    }
+
+    // Gestion du formulaire d'opération
+    document.getElementById('operationForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        executeOperation();
+    });
+
+    // Gestion de la connexion
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const phone = document.getElementById('phone').value;
+        const password = document.getElementById('password').value;
+
+        showLoader();
+        fetch('https://script.google.com/macros/s/AKfycbzZOrcP9z8VwGpfZ-pCNbakoVhBzrUquIB0tgfifibEgQ-VCFYhYrUsYVPlnVOWUAZCkw/exec', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'login', login: phone, password: password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.status === 'success') {
+                localStorage.setItem('userPhone', phone);
+                currentUser = data.user;
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('account-section').classList.remove('hidden');
+                document.getElementById('account-name').textContent = data.user.name;
+                document.getElementById('account-phone').textContent = data.user.phone;
+                document.getElementById('balanceText').textContent = data.user.balance.toFixed(2) + ' XOF';
+                loadHistory(phone);
+            } else {
+                showModalMessage(data.message);
+            }
+        });
+    });
+
+    // Gestion de l'inscription
+    document.getElementById('register-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const phone = document.getElementById('register-phone').value;
+        const name = document.getElementById('register-name').value;
+        const password = document.getElementById('register-password').value;
+        const registerData = {
+            action: 'signup',
+            nom: name,
+            prenom: name,
+            telephone: phone,
+            code_secret: password
+        };
+
+        showLoader();
+        fetch('https://script.google.com/macros/s/AKfycbzZOrcP9z8VwGpfZ-pCNbakoVhBzrUquIB0tgfifibEgQ-VCFYhYrUsYVPlnVOWUAZCkw/exec', {
+            method: 'POST',
+            body: JSON.stringify(registerData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.status === 'success') {
+                showModalMessage('Inscription réussie! Vous pouvez maintenant vous connecter.', '😊');
+                document.getElementById('register-section').classList.add('hidden');
+                document.getElementById('login-section').classList.remove('hidden');
+            } else {
+                showModalMessage(data.message, '😥');
+            }
+        });
+    });
+
+    // Charger l'historique des transactions
+    function loadHistory(phone) {
+        fetch('https://script.google.com/macros/s/AKfycbzZOrcP9z8VwGpfZ-pCNbakoVhBzrUquIB0tgfifibEgQ-VCFYhYrUsYVPlnVOWUAZCkw/exec', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'historique', login: phone })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const historyList = document.getElementById('modal-transaction-history');
+                historyList.innerHTML = '';
+                data.operations.forEach(transaction => {
+                    const li = document.createElement('li');
+                    li.textContent = `Date: ${transaction.date}, Type: ${transaction.type}, Montant: ${transaction.montant}`;
+                    historyList.appendChild(li);
+                });
+            }
+        });
+    }
+
+    // Afficher l'historique des transactions
+    document.getElementById('show-history-btn').addEventListener('click', function() {
+        const phone = document.getElementById('phone').value;
+        fetch('https://script.google.com/macros/s/AKfycbzZOrcP9z8VwGpfZ-pCNbakoVhBzrUquIB0tgfifibEgQ-VCFYhYrUsYVPlnVOWUAZCkw/exec', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'historique', login: phone })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const historyList = document.getElementById('modal-transaction-history');
+                historyList.innerHTML = '';
+                data.operations.forEach(transaction => {
+                    const li = document.createElement('li');
+                    li.textContent = `Date: ${transaction.date}, Type: ${transaction.type}, Montant: ${transaction.montant}`;
+                    historyList.appendChild(li);
+                });
+                openModal('historyModal');
+            }
+        });
+    });
+
+    // Basculer la visibilité du solde
+    function toggleBalanceVisibility() {
+        const balanceText = document.getElementById('balanceText');
+        const toggleBalanceIcon = document.getElementById('toggleBalanceIcon');
+
+        if (balanceText.textContent === '******* F') {
+            balanceText.textContent = `${currentUser.balance.toFixed(2)} XOF`;
+            toggleBalanceIcon.classList.remove('fa-eye');
+            toggleBalanceIcon.classList.add('fa-eye-slash');
+        } else {
+            balanceText.textContent = '******* F';
+            toggleBalanceIcon.classList.remove('fa-eye-slash');
+            toggleBalanceIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Déconnexion
+    function logoutUser() {
+        localStorage.removeItem('userPhone');
+        currentUser = null;
+        document.getElementById('login-section').classList.remove('hidden');
+        document.getElementById('account-section').classList.add('hidden');
+        document.getElementById('phone-container').classList.remove('hidden');
+    }
+    // Fonctions pour afficher les sections
+    function showLoginForm() {
+        document.getElementById('login-section').classList.remove('hidden');
+        document.getElementById('register-section').classList.add('hidden');
+        document.getElementById('account-section').classList.add('hidden');
+    }
+
+    function showSignupForm() {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('register-section').classList.remove('hidden');
+        document.getElementById('account-section').classList.add('hidden');
+    }
+
+    function showAccountSection() {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('register-section').classList.add('hidden');
+        document.getElementById('account-section').classList.remove('hidden');
+    }
+
+    // Fermer les modals en cliquant à l'extérieur
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
+
+    // Fermer les modals avec le bouton de fermeture
+    document.querySelectorAll('.close').forEach(function(closeButton) {
+        closeButton.addEventListener('click', function() {
+            closeButton.closest('.modal').style.display = 'none';
+        });
+    });
+    </script>
+</body>
+</html>
